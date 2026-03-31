@@ -288,6 +288,7 @@
             <div class="header">
                 <h1>🎵 Pugify</h1>
                 <p>Download Spotify tracks as MP3<br><small style="font-size: 0.8rem; color: #888;">for backing tracks & music practice</small></p>
+                <small style="font-size: 0.7rem; color: #666; margin-top: 10px;" id="versionInfo">Carregando...</small>
             </div>
 
             <form id="downloadForm">
@@ -488,6 +489,23 @@
                 return e.returnValue;
             }
         });
+
+        // Load and display server info for debugging
+        async function loadServerInfo() {
+            try {
+                const response = await fetch('/info');
+                const data = await response.json();
+                const versionElement = document.getElementById('versionInfo');
+                versionElement.textContent = `🔧 Servidor: ${data.timestamp}`;
+                console.log('🎵 Pugify Server Info:', data);
+            } catch (error) {
+                console.error('Erro ao carregar info do servidor:', error);
+                document.getElementById('versionInfo').textContent = 'Servidor indisponível';
+            }
+        }
+
+        // Load server info on page load
+        window.addEventListener('load', loadServerInfo);
     </script>
 </body>
 </html>

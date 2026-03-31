@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, send_file, jsonify, after_thi
 import subprocess
 import tempfile
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
@@ -164,6 +165,16 @@ def cleanup_file(file_path):
 def index():
     """Render the main page."""
     return render_template("index.html")
+
+
+@app.route("/info")
+def info():
+    """Return server info for debugging."""
+    return jsonify({
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "service": "pugify"
+    })
 
 
 @app.route("/api/download", methods=["POST"])

@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 # Configuration
 FFMPEG_PATH = None
-SPOTIFY_TRACK_REGEX = r'^https?://open\.spotify\.com/track/[a-zA-Z0-9]+(\?.*)?$'
+SPOTIFY_TRACK_REGEX = r'^https?://open\.spotify\.com(?:/intl-[a-z]{2})?/track/[a-zA-Z0-9]+(\?.*)?$'
 
 # Initialize FFmpeg path
 def initialize_ffmpeg():

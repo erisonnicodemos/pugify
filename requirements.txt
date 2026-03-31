@@ -1,7 +1,7 @@
 Flask==3.0.0
 Werkzeug==3.0.1
 gunicorn==21.2.0
-spotdl==4.2.1
+spotdl==3.9.6
 yt-dlp==2024.3.10
 spotipy==2.22.1
 requests==2.31.0

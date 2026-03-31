@@ -69,7 +69,7 @@ def download_spotify_track(spotify_url):
         # Use system temp directory for better cleanup
         download_dir = tempfile.mkdtemp(prefix="spotfydown_")
         logger.info(f"📑 Download directory: {download_dir}")
-        logger.info(f🎧 Downloading: {spotify_url}")
+        logger.info(f"🎧 Downloading: {spotify_url}")
         
         # Build spotdl command with FFmpeg
         cmd = [

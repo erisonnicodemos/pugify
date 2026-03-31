@@ -351,8 +351,10 @@
 
             const url = urlInput.value.trim();
 
-            // Validate URL format
-            if (!url.startsWith('https://open.spotify.com/track/')) {
+            // Validate URL format - accepts both regular and locale URLs
+            // Examples: https://open.spotify.com/track/... or https://open.spotify.com/intl-pt/track/...
+            const spotifyTrackRegex = /^https:\/\/open\.spotify\.com(?:\/intl-[a-z]{2})?\/track\/[a-zA-Z0-9]+/;
+            if (!spotifyTrackRegex.test(url)) {
                 showError('❌ URL inválida. Certifique-se de que é um link direto do Spotify.');
                 return;
             }

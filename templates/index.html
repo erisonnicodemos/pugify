@@ -194,13 +194,85 @@
             height: 100%;
             background: linear-gradient(90deg, var(--spotify-green), #1ed760);
             border-radius: 2px;
-            animation: progressPulse 1.5s ease-in-out infinite;
+            width: 0%;
+            transition: width 0.4s ease;
         }
 
         @keyframes progressPulse {
             0% { width: 10%; }
             50% { width: 85%; }
             100% { width: 10%; }
+        }
+
+        /* Process Steps */
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            gap: 8px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+            color: var(--spotify-green);
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(29, 185, 84, 0.2);
+            border: 2px solid rgba(29, 185, 84, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--spotify-green);
+            border-color: #1ed760;
+            color: #000;
+            box-shadow: 0 0 12px rgba(29, 185, 84, 0.6);
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .process-steps {
+                margin-top: 16px;
+                gap: 4px;
+            }
+
+            .step-circle {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+
+            .step-label {
+                font-size: 0.6rem;
+            }
         }
 
         .alert-custom {
@@ -313,9 +385,34 @@
                 <div class="spinner-container">
                     <div class="spinner"></div>
                 </div>
-                <p class="loading-text" id="statusText">Processando sua música...</p>
+                <p class="loading-text" id="statusText">Iniciando processo...</p>
+                
+                <!-- Process Steps -->
+                <div class="process-steps">
+                    <div class="step" id="step-validating">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Validando</div>
+                    </div>
+                    <div class="step" id="step-processing">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Processando</div>
+                    </div>
+                    <div class="step" id="step-converting">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Convertendo</div>
+                    </div>
+                    <div class="step" id="step-finalizing">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Finalizando</div>
+                    </div>
+                    <div class="step" id="step-downloading">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">Download</div>
+                    </div>
+                </div>
+                
                 <div class="progress-bar-custom">
-                    <div class="progress-bar-fill"></div>
+                    <div class="progress-bar-fill" id="progressFill"></div>
                 </div>
             </div>
 
@@ -341,8 +438,43 @@
         const statusText = document.getElementById('statusText');
         const errorAlert = document.getElementById('errorAlert');
         const successAlert = document.getElementById('successAlert');
+        const progressFill = document.getElementById('progressFill');
 
         let isDownloading = false;
+
+        // Progress step tracking
+        const steps = [
+            { id: 'step-validating', label: 'Validando URL...', progress: 10 },
+            { id: 'step-processing', label: 'Processando com Spotify...', progress: 30 },
+            { id: 'step-converting', label: 'Convertendo para MP3...', progress: 60 },
+            { id: 'step-finalizing', label: 'Finalizando...', progress: 80 },
+            { id: 'step-downloading', label: 'Preparando download...', progress: 100 }
+        ];
+
+        function updateProgress(stepIndex) {
+            const step = steps[stepIndex];
+            if (step) {
+                statusText.textContent = step.label;
+                progressFill.style.width = step.progress + '%';
+                
+                // Mark current step as active
+                steps.forEach((s, index) => {
+                    const element = document.getElementById(s.id);
+                    if (index <= stepIndex) {
+                        element.classList.add('active');
+                    } else {
+                        element.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        async function simulateProgress() {
+            for (let i = 0; i < steps.length; i++) {
+                updateProgress(i);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -368,12 +500,19 @@
             urlInput.disabled = true;
             loadingIndicator.classList.add('active');
             btnIcon.textContent = '⏳';
-            btnText.textContent = 'Baixando...';
-            updateStatus('Iniciando download...');
+            btnText.textContent = 'Processando...';
+            
+            // Reset progress to 0
+            progressFill.style.width = '0%';
+            steps.forEach(s => {
+                document.getElementById(s.id).classList.remove('active');
+            });
 
             try {
-                updateStatus('Conectando ao servidor...');
-
+                // Start visual progress simulation
+                const progressPromise = simulateProgress();
+                
+                // Make the actual download request
                 const response = await fetch('/api/download', {
                     method: 'POST',
                     headers: {
@@ -382,14 +521,15 @@
                     body: JSON.stringify({ url: url })
                 });
 
+                // Wait for visual progress to catch up
+                await progressPromise;
+
                 if (!response.ok) {
-                    updateStatus('Processando erro...');
+                    updateProgress(4); // Show downloading step
                     const errorData = await response.json().catch(() => ({error: 'Erro desconhecido'}));
                     const errorMessage = errorData.error || `Erro ${response.status}`;
                     throw new Error(errorMessage);
                 }
-
-                updateStatus('Download recebido! Salvando arquivo...');
 
                 // Get filename from Content-Disposition header if available
                 const contentDisposition = response.headers.get('content-disposition');
@@ -472,6 +612,13 @@
             urlInput.disabled = false;
             btnIcon.textContent = '⬇️';
             btnText.textContent = 'Baixar MP3';
+            
+            // Reset progress bar and steps
+            progressFill.style.width = '0%';
+            steps.forEach(s => {
+                document.getElementById(s.id).classList.remove('active');
+            });
+            
             urlInput.focus();
         }
 

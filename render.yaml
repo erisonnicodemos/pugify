@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: spotfydown
+    env: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn --workers 2 --threads 2 --worker-class gthread --bind 0.0.0.0:$PORT --timeout 300 app:app
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        fromPort: true
+    healthCheckPath: /health

@@ -13,10 +13,26 @@ pip install --upgrade pip setuptools wheel
 echo "📦 Installing Python dependencies..."
 pip install --no-cache-dir -r requirements.txt
 
-# Step 2: Install ffmpeg via apt-get (more reliable on Render)
-echo "⬇️  Installing FFmpeg via apt-get..."
-apt-get update -qq
-apt-get install -y ffmpeg 2>&1 | grep -v "^Get:" | grep -v "^Hit:" || true
+# Step 2: Try to install ffmpeg (skip if fails, may already exist)
+echo "⬇️  Checking for FFmpeg..."
+if command -v ffmpeg &> /dev/null; then
+    echo "✅ FFmpeg already available"
+else
+    echo "Attempting to install FFmpeg..."
+    apt-get install -y ffmpeg 2>/dev/null || {
+        echo "⚠️  apt-get install failed, attempting apt-get with cache..."
+        apt-get install -y --no-install-recommends ffmpeg 2>/dev/null || {
+            echo "⚠️  FFmpeg installation skipped - will try fallback"
+        }
+    }
+fi
+
+# Verify FFmpeg
+if command -v ffmpeg &> /dev/null; then
+    echo "✅ FFmpeg available: $(ffmpeg -version | head -n1)"
+else
+    echo "⚠️  FFmpeg not found - spotdl might fail"
+fi
 
 echo "✅ Build complete!"
     cp ffmpeg-*/ffmpeg .

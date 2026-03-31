@@ -432,7 +432,11 @@
                 }, 2000);
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Download Error:', error);
+                console.group('🔍 Error Details');
+                console.error('Message:', error.message);
+                console.error('Stack:', error.stack);
+                console.groupEnd();
                 const errorMsg = error.message || 'Ocorreu um erro ao processar sua requisição. Tente novamente.';
                 showError(`❌ ${errorMsg}`);
                 updateStatus('Erro no download');
@@ -498,8 +502,22 @@
                 const response = await fetch('/info');
                 const data = await response.json();
                 const versionElement = document.getElementById('versionInfo');
-                versionElement.textContent = `🔧 Servidor: ${data.timestamp}`;
-                console.log('🎵 Pugify Server Info:', data);
+                
+                // Extract Python version from full version string
+                const pythonMatch = data.python_version.match(/(\d+\.\d+\.\d+)/);
+                const pythonVersion = pythonMatch ? pythonMatch[1] : 'unknown';
+                
+                versionElement.textContent = `🐍 Python ${pythonVersion} • 🔧 ${new Date(data.timestamp).toLocaleTimeString()}`;
+                
+                // Detailed console logging
+                console.group('🎵 Pugify Server Debug Info');
+                console.log('Status:', data.status);
+                console.log('Python Version:', data.python_version);
+                console.log('Python Executable:', data.python_executable);
+                console.log('Platform:', data.platform);
+                console.log('FFmpeg Path:', data.ffmpeg_path);
+                console.log('Timestamp:', data.timestamp);
+                console.groupEnd();
             } catch (error) {
                 console.error('Erro ao carregar info do servidor:', error);
                 document.getElementById('versionInfo').textContent = 'Servidor indisponível';

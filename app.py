@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 import logging
 from datetime import datetime
+import sys
+import platform
 
 # Configure logging
 logging.basicConfig(
@@ -14,6 +16,11 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger("pugify")
+
+# Log system info on startup
+logger.info(f"🚀 Pugify Startup - Python {sys.version}")
+logger.info(f"🖥️  Platform: {platform.platform()}")
+logger.info(f"📦 Python executable: {sys.executable}")
 
 app = Flask(__name__)
 
@@ -67,6 +74,10 @@ def download_spotify_track(spotify_url):
     download_dir = None
     
     try:
+        # Log system info
+        logger.info(f"🐍 Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        logger.info(f"📍 Executable: {sys.executable}")
+        
         # Use system temp directory for better cleanup
         download_dir = tempfile.mkdtemp(prefix="spotfydown_")
         logger.info(f"📑 Download directory: {download_dir}")
@@ -173,7 +184,11 @@ def info():
     return jsonify({
         "status": "ok",
         "timestamp": datetime.now().isoformat(),
-        "service": "pugify"
+        "service": "pugify",
+        "python_version": sys.version,
+        "python_executable": sys.executable,
+        "platform": platform.platform(),
+        "ffmpeg_path": FFMPEG_PATH or "not found"
     })
 
 

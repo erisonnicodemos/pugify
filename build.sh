@@ -35,16 +35,3 @@ else
 fi
 
 echo "✅ Build complete!"
-    cp ffmpeg-*/ffmpeg .
-    chmod +x ffmpeg
-    echo "   ✅ FFmpeg extracted and ready"
-else
-    echo "   ⚠️  FFmpeg binary not found in archive"
-fi
-
-cd ..
-
-echo ""
-echo "================================"
-echo "✅ Build completed successfully!"
-echo "================================"
